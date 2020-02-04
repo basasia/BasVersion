@@ -18,6 +18,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
@@ -59,18 +61,112 @@ public class FXMLTableViewController implements Initializable {
         window.show();
     }
     
-    //actions for add property
-    /*
-    private void handleAddTestProperty() {
-     
-       
-    }
-    */
+    /**
+     * Called when the user clicks save.
+     */
+    @FXML
+    private void handleSaveTestproperty() {
+        if (isInputValid()){
+        TestProperty selectedTestproperty = tableView.getSelectionModel().getSelectedItem();
+        selectedTestproperty.setLeaseNum(Integer.parseInt(TextFieldLeaseNum.getText()));
+        selectedTestproperty.setHallName(TextFieldHallName.getText());
+        selectedTestproperty.setHallNum(Integer.parseInt(TextFieldHallNum.getText()));
+        selectedTestproperty.setRoomNum(Integer.parseInt(TextFieldRoomNum.getText()));
+        selectedTestproperty.setStudentName(TextFieldStudentName.getText());
+        selectedTestproperty.setOccupancy(TextFieldOccupancy.getText());
+        
+        //get index from row selected
+        int selectedIndex = tableView.getSelectionModel().getSelectedIndex();
+        //update tableList
+        observableList.set(selectedIndex, selectedTestproperty);
+        //show new updated
+        showTestPropertyDetails(selectedTestproperty);
+        }
+        }
+   
      @FXML
     //actions for delete property
     private void handleDeleteTestProperty() {
         int selectedIndex = tableView.getSelectionModel().getSelectedIndex();
-        tableView.getItems().remove(selectedIndex);
+        if (selectedIndex >= 0) {
+           tableView.getItems().remove(selectedIndex);
+        }      
+        else {
+        // Nothing selected.
+        Alert alert = new Alert(AlertType.WARNING);
+        alert.setTitle("No Selection");
+        alert.setHeaderText("No Data Selected");
+        alert.setContentText("Please select a data in the table.");
+
+        alert.showAndWait();
+        }
+    }
+    
+     /**
+     * Validates the user input in the text fields.
+     * 
+     * @return true if the input is valid
+     */
+    private boolean isInputValid() {
+        String errorMessage = "";
+
+        if (TextFieldHallName.getText() == null || TextFieldHallName.getText().length() == 0) {
+            errorMessage += "No valid hall name!\n"; 
+        }
+        if (TextFieldOccupancy.getText() == null || TextFieldOccupancy.getText().length() == 0) {
+            errorMessage += "No valid occupancy!\n"; 
+        }
+        if (TextFieldStudentName.getText() == null || TextFieldStudentName.getText().length() == 0) {
+            errorMessage += "No valid student name!\n"; 
+        }
+
+        if (TextFieldLeaseNum.getText() == null || TextFieldLeaseNum.getText().length() == 0) {
+            errorMessage += "No lease number !\n"; 
+        } else {
+            // try to parse the lease num into an int.
+            try {
+                Integer.parseInt(TextFieldLeaseNum.getText());
+            } catch (NumberFormatException e) {
+                errorMessage += "No valid lease number (must be an integer)!\n"; 
+            }
+        }
+         
+        if (TextFieldHallNum.getText() == null || TextFieldHallNum.getText().length() == 0) {
+            errorMessage += "No hall number!\n"; 
+        }  else {
+            // try to parse the hall num into an int.
+            try {
+                Integer.parseInt(TextFieldHallNum.getText());
+            } catch (NumberFormatException e) {
+                errorMessage += "No valid hall number (must be an integer)!\n"; 
+            }
+        }
+        
+        if (TextFieldRoomNum.getText() == null || TextFieldRoomNum.getText().length() == 0) {
+            errorMessage += "No valid room number!\n"; 
+        }  else {
+            // try to parse the room num into an int.
+            try {
+                Integer.parseInt(TextFieldRoomNum.getText());
+            } catch (NumberFormatException e) {
+                errorMessage += "No valid room number (must be an integer)!\n"; 
+            }
+        }
+         
+
+        if (errorMessage.length() == 0) {
+            return true;
+        } else {
+            // Show the error message.
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Invalid Fields");
+            alert.setHeaderText("Please correct invalid fields");
+            alert.setContentText(errorMessage);
+            
+            alert.showAndWait();
+            
+            return false;
+        }
     }
     
     /**
@@ -104,28 +200,7 @@ public class FXMLTableViewController implements Initializable {
         //    ColCleaningStatus.setText("");
         }
     }
-    
-    /**
-     * Called when the user clicks ok.
-     */
-    @FXML
-    private void handleSaveTestproperty() {
-        TestProperty selectedTestproperty = tableView.getSelectionModel().getSelectedItem();
-        selectedTestproperty.setLeaseNum(Integer.parseInt(TextFieldLeaseNum.getText()));
-        selectedTestproperty.setHallName(TextFieldHallName.getText());
-        selectedTestproperty.setHallNum(Integer.parseInt(TextFieldHallNum.getText()));
-        selectedTestproperty.setRoomNum(Integer.parseInt(TextFieldRoomNum.getText()));
-        selectedTestproperty.setStudentName(TextFieldStudentName.getText());
-        selectedTestproperty.setOccupancy(TextFieldOccupancy.getText());
-        
-        //get index from row selected
-        int selectedIndex = tableView.getSelectionModel().getSelectedIndex();
-        //update tableList
-        observableList.set(selectedIndex, selectedTestproperty);
-        //show new updated
-        showTestPropertyDetails(selectedTestproperty);
 
-        }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -139,7 +214,7 @@ public class FXMLTableViewController implements Initializable {
         //show items on tableView
         tableView.setItems(observableList);
         
-        // Clear person details.
+        // Clear Testproperty details.
         showTestPropertyDetails(null);
         // Listen for selection changes and show the person details when changed.
         tableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> showTestPropertyDetails(newValue));
